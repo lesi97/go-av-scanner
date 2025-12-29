@@ -2,6 +2,7 @@ package router
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/lesi97/go-av-scanner/internal/app"
@@ -14,8 +15,13 @@ func SetupRoutes(app *app.Application) *chi.Mux {
 	routes := chi.NewRouter()
 	// routes.Use(middleware.ApiKey(apiKey))
 	
-	routes.Get("/health", http.HandlerFunc(middleware.Run(app.Logger, app.ApiHandler.HandleHealth)))
-	routes.Post("/scan", http.HandlerFunc(middleware.Run(app.Logger, app.ApiHandler.HandleScan)))
+	routes.Get("/api/health", http.HandlerFunc(middleware.Run(app.Logger, app.ApiHandler.HandleHealth)))
+	routes.Post("/api/scan", http.HandlerFunc(middleware.Run(app.Logger, app.ApiHandler.HandleScan)))
+
+	if os.Getenv("ENABLE_UI") != "false" {
+		routes.Handle("/*", http.FileServer(http.Dir("/app/ui/dist")))
+	}
+
 
 
 	return routes

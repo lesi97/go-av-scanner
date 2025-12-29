@@ -32,7 +32,7 @@ func (h *ApiHandler) HandleScan(w http.ResponseWriter, r *http.Request) {
 				utils.Error(w, http.StatusUnprocessableEntity, scanErr.Result)
 				return
 			}
-			utils.Error(w, http.StatusInternalServerError, "internal server error")
+			utils.Error(w, http.StatusInternalServerError, err)
 			return
 		}
 		utils.Success(w, http.StatusOK, message)
@@ -52,7 +52,7 @@ func (h *ApiHandler) HandleScan(w http.ResponseWriter, r *http.Request) {
 			utils.Error(w, http.StatusUnprocessableEntity, scanErr.Result)
 			return
 		}
-		utils.Error(w, http.StatusInternalServerError, "internal server error")
+		utils.Error(w, http.StatusInternalServerError, err)
 		return
 	}
 

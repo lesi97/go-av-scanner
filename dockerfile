@@ -1,3 +1,10 @@
+FROM node:20-alpine AS ui-build
+WORKDIR /ui
+COPY ui/package.json ui/package-lock.json ./
+RUN npm ci
+COPY ui .
+RUN npm run build
+
 FROM golang:1.24-alpine AS build
 WORKDIR /src
 COPY . .
@@ -16,7 +23,10 @@ RUN sed -i 's/\r$//' /etc/clamav/clamd.conf /etc/clamav/freshclam.conf /entrypoi
 RUN chmod +x /entrypoint.sh
 
 COPY --from=build /out/api /app/api
+COPY --from=ui-build /ui/dist /app/ui/dist
+
+ENV ENABLE_UI=true
+ENV GO_ENV=production
 
 EXPOSE 8080
 ENTRYPOINT ["/entrypoint.sh"]
-ENV GO_ENV=production

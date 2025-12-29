@@ -22,7 +22,7 @@ func TestClamScan_EicarDetected(t *testing.T) {
 		t.Skip("clamscan not found, skipping integration test")
 	}
 
-	sc := clamscan.New(bin)
+	sc, _ := clamscan.New(bin)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()

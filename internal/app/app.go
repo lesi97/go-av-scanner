@@ -17,7 +17,10 @@ type Application struct {
 
 func NewApplication() (*Application, error) {
 	logger := utils.NewColourLogger("brightMagenta")
-	sc := clamscan.New("")
+	sc, err := clamscan.New("")
+	if err != nil {
+		logger.Fatalf("failed to initialise clamscan: %v", err)
+	}
 
 	apiStore := store.NewApiStore(logger, sc)
 	apiHandler := api.NewApiHandler(logger, apiStore)

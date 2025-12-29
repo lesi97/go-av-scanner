@@ -3,6 +3,7 @@ package clamscan
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os/exec"
 	"strings"
 	"time"
@@ -14,16 +15,20 @@ type ClamScan struct {
 	BinaryPath string
 }
 
-func New(binaryPath string) ClamScan {
+func New(binaryPath string) (ClamScan, error) {
 	if binaryPath == "" {
 		binaryPath = "clamscan"
 	}
-	return ClamScan{BinaryPath: binaryPath}
+
+	if _, err := exec.LookPath(binaryPath); err != nil {
+		return ClamScan{}, fmt.Errorf("clamscan not found: %w", err)
+	}
+
+	return ClamScan{BinaryPath: binaryPath}, nil
 }
 
 func (c ClamScan) ScanFile(ctx context.Context, path string) (scanner.Result, error) {
 	start := time.Now()
-
 	cmd := exec.CommandContext(ctx, c.BinaryPath, "--no-summary", path)
 	outBytes, err := cmd.CombinedOutput()
 	out := strings.TrimSpace(string(outBytes))

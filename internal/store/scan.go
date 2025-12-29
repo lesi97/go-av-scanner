@@ -32,7 +32,7 @@ func (s *DbApiStore) Scan(ctx context.Context, r io.Reader) (*scanner.Result, er
 	if err != nil {
 		return nil, fmt.Errorf("failed to close temp file: %w", err)
 	}
-
+	
 	result, scanErr := s.scanner.ScanFile(ctx, tmpPath)
 	if scanErr != nil {
 		return &result, scanErr

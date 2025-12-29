@@ -18,7 +18,7 @@ func Startup(port string) {
 	name, version := readModuleInfo()
 	ip := getLocalIp()
 
-	PrintColour("brightWhite", "\n  > %s %s\n", name, version) 					// Package name
+	PrintColour("brightWhite", "\n  > %s %s\n", name, version) 		// Package name
 	PrintColour("brightBlack", "\tEnvironment: %s", env)			// Current environment
 	PrintColour("brightMagenta", "\n\t- Local:")					// Localhost address label
 	PrintColour("cyan", "\t  %v%v%v", protocol, "localhost", port)	// Localhost address value
