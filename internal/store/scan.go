@@ -10,6 +10,14 @@ import (
 )
 
 func (s *DbApiStore) Scan(ctx context.Context, r io.Reader) (*scanner.Result, error) {
+
+	select {
+	case s.sem <- struct{}{}:
+		defer func() { <-s.sem }()
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
+
 	if r == nil {
 		return nil, fmt.Errorf("missing request body")
 	}

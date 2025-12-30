@@ -15,7 +15,7 @@ func (h *ApiHandler) HandleScan(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 60*time.Second)
 	defer cancel()
 
-	err := r.ParseMultipartForm(100 << 20)
+	err := r.ParseMultipartForm(200 << 20)
 	if err != nil {
 		utils.Error(w, http.StatusBadRequest, "invalid multipart form")
 		return

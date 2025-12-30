@@ -16,11 +16,13 @@ type ApiStore interface {
 type DbApiStore struct {
 	logger *log.Logger
 	scanner scanner.Scanner
+	sem     chan struct{}
 }
 
 func NewApiStore(logger *log.Logger, sc scanner.Scanner) *DbApiStore {
 	return &DbApiStore{
 		logger: logger,
 		scanner: sc,
+		sem: make(chan struct{}, 20),
 	}
 }

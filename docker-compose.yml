@@ -1,0 +1,16 @@
+services:
+    api:
+        build: .
+        environment:
+            ENABLE_UI: 'true'
+            UPLOAD_DIR: /data/uploads
+        ports:
+            - '8080:8080'
+        volumes:
+            - uploads:/data/uploads
+            - clamdb:/var/lib/clamav
+
+volumes:
+    pgdata:
+    uploads:
+    clamdb:

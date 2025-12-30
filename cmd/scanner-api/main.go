@@ -29,8 +29,8 @@ func main() {
 		Addr: fmt.Sprintf(":%d", port),
 		IdleTimeout: time.Minute,
 		Handler: routes,
-		ReadTimeout: 10 * time.Second,
-		WriteTimeout: 30 * time.Second,
+		ReadTimeout: 0,
+		WriteTimeout: 0,
 	}
 
 	utils.Startup(fmt.Sprintf(":%d", port))

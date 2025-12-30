@@ -1,0 +1,26 @@
+{
+    "name": "go-av-scan",
+    "version": "1.0.0",
+    "description": "A lightweight Go HTTP service for scanning uploaded content with ClamAV",
+    "scripts": {
+        "api": "go run ./cmd/scanner-api/main.go",
+        "ui": "cd ./ui && npm run dev",
+        "docker:build": "docker build -t go-av-scanner .",
+        "docker:run": "docker run --rm -p 8080:8080 -v clamdb:/var/lib/clamav go-av-scanner",
+        "docker:k6": "docker run --rm -i -v %cd%:/work -w /work grafana/k6 run ./loadtest/k6.js > ./loadtest/loadtest.log",
+        "docker:buildImage": "docker buildx build --platform linux/amd64 -t go-av-scanner:latest --load . && docker save -o go-av-scanner.tar go-av-scanner:latest",
+        "docker:buildAndTransfer": "npm run docker:buildImage && scp go-av-scanner.tar root@192.168.0.209:/mnt/user/appdata/go-av-scanner/"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/lesi97/go-av-scanner.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "MIT",
+    "type": "commonjs",
+    "bugs": {
+        "url": "https://github.com/lesi97/go-av-scanner/issues"
+    },
+    "homepage": "https://github.com/lesi97/go-av-scanner#readme"
+}

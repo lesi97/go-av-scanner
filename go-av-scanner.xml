@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<Container>
+  <Name>go-av-scanner</Name>
+  <Repository>go-av-scanner:latest</Repository>
+  <Network>bridge</Network>
+  <MyID>go-av-scanner</MyID>
+  <Privileged>false</Privileged>
+  <Overview>Go AV scanner</Overview>
+  <Category>Web</Category>
+  <WebUI>http://[IP]:[PORT:8080]</WebUI>
+
+  <Environment>
+    <Variable>
+      <Name>GO_ENV</Name>
+      <Value>production</Value>
+      <Mode>rw</Mode>
+    </Variable>
+    <Variable>
+      <Name>ENABLE_UI</Name>
+      <Value>true</Value>
+      <Mode>rw</Mode>
+    </Variable>
+  </Environment>
+
+  <Data>
+    <Volume>
+      <HostDir>/mnt/user/appdata/go-av-scanner/clamdb</HostDir>
+      <ContainerDir>/var/lib/clamav</ContainerDir>
+      <Mode>rw</Mode>
+    </Volume>
+  </Data>
+
+  <Networking>
+    <Port>
+      <HostPort>7351</HostPort>
+      <ContainerPort>8080</ContainerPort>
+      <Protocol>tcp</Protocol>
+    </Port>
+  </Networking>
+</Container>
