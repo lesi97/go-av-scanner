@@ -8,6 +8,13 @@ freshclam --config-file=/etc/clamav/freshclam.conf || true
 
 clamd --config-file=/etc/clamav/clamd.conf &
 
+for i in $(seq 1 30); do
+  if clamdscan --no-summary --fdpass /etc/hosts >/dev/null 2>&1; then
+    break
+  fi
+  sleep 1
+done
+
 freshclam --config-file=/etc/clamav/freshclam.conf -d &
 
 exec /app/api

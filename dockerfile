@@ -16,6 +16,8 @@ RUN apk add --no-cache clamav clamav-daemon tzdata ca-certificates \
   && mkdir -p /run/clamav /var/lib/clamav /var/log/clamav /app \
   && chown -R clamav:clamav /run/clamav /var/lib/clamav /var/log/clamav
 
+WORKDIR /app
+
 COPY docker/clamd.conf /etc/clamav/clamd.conf
 COPY docker/freshclam.conf /etc/clamav/freshclam.conf
 COPY docker/entrypoint.sh /entrypoint.sh

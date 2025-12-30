@@ -17,11 +17,11 @@ type ClamScan struct {
 
 func New(binaryPath string) (ClamScan, error) {
 	if binaryPath == "" {
-		binaryPath = "clamscan"
+		binaryPath = "clamdscan"
 	}
 
 	if _, err := exec.LookPath(binaryPath); err != nil {
-		return ClamScan{}, fmt.Errorf("clamscan not found: %w", err)
+		return ClamScan{}, fmt.Errorf("clamdscan not found: %w", err)
 	}
 
 	return ClamScan{BinaryPath: binaryPath}, nil
@@ -29,12 +29,20 @@ func New(binaryPath string) (ClamScan, error) {
 
 func (c ClamScan) ScanFile(ctx context.Context, path string) (scanner.Result, error) {
 	start := time.Now()
-	cmd := exec.CommandContext(ctx, c.BinaryPath, "--no-summary", path)
+
+	cmd := exec.CommandContext(
+		ctx,
+		c.BinaryPath,
+		"--no-summary",
+		"--fdpass",
+		path,
+	)
+
 	outBytes, err := cmd.CombinedOutput()
 	out := strings.TrimSpace(string(outBytes))
 
 	res := scanner.Result{
-		Engine:   "clamscan",
+		Engine:   "clamdscan",
 		Duration: time.Since(start) / time.Millisecond,
 	}
 
@@ -45,17 +53,17 @@ func (c ClamScan) ScanFile(ctx context.Context, path string) (scanner.Result, er
 
 	var exitErr *exec.ExitError
 	if errors.As(err, &exitErr) {
-		code := exitErr.ExitCode()
-
-		if code == 1 {
+		switch exitErr.ExitCode() {
+		case 1:
 			res.Status = scanner.StatusInfected
 			res.Signature = parseSignature(out)
 			return res, nil
-		}
 
-		res.Status = scanner.StatusError
-		res.Error = out
-		return res, err
+		default:
+			res.Status = scanner.StatusError
+			res.Error = out
+			return res, err
+		}
 	}
 
 	res.Status = scanner.StatusError
@@ -68,6 +76,7 @@ func parseSignature(output string) string {
 	if len(parts) < 2 {
 		return ""
 	}
+
 	right := strings.TrimSpace(parts[len(parts)-1])
 	right = strings.TrimSuffix(right, " FOUND")
 	return strings.TrimSpace(right)
