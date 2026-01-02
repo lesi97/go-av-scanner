@@ -13,9 +13,10 @@ import (
 
 type ClamScan struct {
 	BinaryPath string
+	MaxFileBytes int64
 }
 
-func New(binaryPath string) (ClamScan, error) {
+func New(binaryPath string, maxFileBytes int64) (ClamScan, error) {
 	if binaryPath == "" {
 		binaryPath = "clamdscan"
 	}
@@ -24,7 +25,10 @@ func New(binaryPath string) (ClamScan, error) {
 		return ClamScan{}, fmt.Errorf("clamdscan not found: %w", err)
 	}
 
-	return ClamScan{BinaryPath: binaryPath}, nil
+	return ClamScan{
+		BinaryPath:   binaryPath,
+		MaxFileBytes: maxFileBytes,
+	}, nil
 }
 
 func (c ClamScan) ScanFile(ctx context.Context, path string) (scanner.Result, error) {

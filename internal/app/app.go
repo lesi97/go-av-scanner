@@ -17,12 +17,13 @@ type Application struct {
 
 func NewApplication() (*Application, error) {
 	logger := utils.NewColourLogger("brightMagenta")
-	sc, err := clamscan.New("")
+	const maxUploadBytes int64 = 10 << 30  // 10.73741824gb or 10,737,418,240 bytes
+	sc, err := clamscan.New("", maxUploadBytes)
 	if err != nil {
-		logger.Fatalf("failed to initialise clamscan: %v", err)
+		logger.Fatalf("failed to initialise clamdscan: %v", err)
 	}
 
-	apiStore := store.NewApiStore(logger, sc)
+	apiStore := store.NewApiStore(logger, sc, maxUploadBytes)
 	apiHandler := api.NewApiHandler(logger, apiStore)
 
 	app := &Application{

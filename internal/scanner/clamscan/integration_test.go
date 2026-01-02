@@ -15,14 +15,14 @@ import (
 func TestClamScan_EicarDetected(t *testing.T) {
 	bin := os.Getenv("CLAMSCAN_PATH")
 	if bin == "" {
-		bin = "clamscan"
+		bin = "clamdscan"
 	}
 
 	if _, err := exec.LookPath(bin); err != nil {
-		t.Skip("clamscan not found, skipping integration test")
+		t.Skip("clamdscan not found, skipping integration test")
 	}
 
-	sc, _ := clamscan.New(bin)
+	sc, _ := clamscan.New(bin, 64 << 20)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()

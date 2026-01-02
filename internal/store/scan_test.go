@@ -21,9 +21,11 @@ func (f fakeScanner) ScanFile(ctx context.Context, path string) (scanner.Result,
 	return f.result, f.err
 }
 
+const MaxFileBytes = 64 << 20
+
 func TestScan_ReturnsErrorOnNilReader(t *testing.T) {
 	logger := utils.NewColourLogger("brightMagenta")
-	s := store.NewApiStore(logger, fakeScanner{})
+	s := store.NewApiStore(logger, fakeScanner{}, MaxFileBytes)
 	_, err := s.Scan(context.Background(), nil)
 	if err == nil {
 		t.Fatalf("expected error, got nil")
@@ -35,7 +37,7 @@ func TestScan_ReturnsCleanResult(t *testing.T) {
 		result: scanner.Result{Status: scanner.StatusClean, Engine: "fake"},
 	}
 	logger := utils.NewColourLogger("brightMagenta")
-	s := store.NewApiStore(logger, fs)
+	s := store.NewApiStore(logger, fs, MaxFileBytes)
 
 	res, err := s.Scan(context.Background(), bytes.NewReader([]byte("hello")))
 	if err != nil {
@@ -54,7 +56,7 @@ func TestScan_ReturnsInfectedAsScanError(t *testing.T) {
 		result: scanner.Result{Status: scanner.StatusInfected, Signature: "Eicar-Test-Signature", Engine: "fake"},
 	}
 	logger := utils.NewColourLogger("brightMagenta")
-	s := store.NewApiStore(logger, fs)
+	s := store.NewApiStore(logger, fs, MaxFileBytes)
 
 	res, err := s.Scan(context.Background(), bytes.NewReader([]byte("eicar")))
 	if res == nil {
@@ -75,7 +77,7 @@ func TestScan_PropagatesScannerError(t *testing.T) {
 		err:    io.EOF,
 	}
 	logger := utils.NewColourLogger("brightMagenta")
-	s := store.NewApiStore(logger, fs)
+	s := store.NewApiStore(logger, fs, MaxFileBytes)
 
 	res, err := s.Scan(context.Background(), bytes.NewReader([]byte("hello")))
 	if res == nil {

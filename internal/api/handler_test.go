@@ -19,6 +19,7 @@ import (
 type fakeStore struct {
 	res *scanner.Result
 	err error
+	maxUploadBytes int64
 }
 
 func (f fakeStore) Scan(ctx context.Context, r io.Reader) (*scanner.Result, error) {
@@ -27,6 +28,13 @@ func (f fakeStore) Scan(ctx context.Context, r io.Reader) (*scanner.Result, erro
 
 func (f fakeStore) Health(ctx context.Context) (*string, error) {
 	return nil, nil
+}
+
+func (f fakeStore) MaxUploadBytes() int64 {
+	if f.maxUploadBytes == 0 {
+		return 64 << 20
+	}
+	return f.maxUploadBytes
 }
 
 

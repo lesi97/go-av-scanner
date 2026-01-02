@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -13,8 +14,18 @@ func (h *ApiHandler) HandleScan(w http.ResponseWriter, r *http.Request) {
 	// ctx, cancel := context.WithTimeout(r.Context(), 60*time.Second)
 	// defer cancel()
 
-	err := r.ParseMultipartForm(100000 << 20) // 104.8576gb or 104,857,600,000 bytes
+	r.Body = http.MaxBytesReader(w, r.Body, h.apiStore.MaxUploadBytes())
+	
+	err := r.ParseMultipartForm(64 << 24) // 1073741824 bytes
 	if err != nil {
+		var maxErr *http.MaxBytesError
+		if errors.As(err, &maxErr) {
+			maxFileSize := utils.FormatBytes(h.apiStore.MaxUploadBytes())
+			newErr := fmt.Errorf("file size too large, max filesize is: %v", maxFileSize)
+			utils.Error(w, http.StatusRequestEntityTooLarge, newErr)
+			return
+		}
+
 		utils.Error(w, http.StatusBadRequest, "invalid multipart form")
 		return
 	}
