@@ -1,7 +1,9 @@
+import { cn } from '../utils/cn';
+
 type SvgProps = React.SVGAttributes<SVGElement>;
 
 export const illustrations = {
-    Secure: (props: SvgProps) => (
+    Secure: (props: SvgProps & { isError: boolean }) => (
         <svg
             xmlns='http://www.w3.org/2000/svg'
             viewBox='0 0 826 541'
@@ -197,21 +199,24 @@ export const illustrations = {
                 cy='281.3278'
                 r='4.10009'
                 // fill='#6c63ff'
-                fill='#f86158'
+                fill='currentColor'
+                className={cn(props.isError ? 'text-error' : 'text-ios-red')}
             />
             <circle
                 cx='664.31359'
                 cy='281.3278'
                 r='4.10009'
                 // fill='#6c63ff'
-                fill='#fbbf2d'
+                fill='currentColor'
+                className={cn(props.isError ? 'text-error' : 'text-ios-amber')}
             />
             <circle
                 cx='677.98055'
                 cy='281.3278'
                 r='4.10009'
                 // fill='#6c63ff'
-                fill='#2ccb44'
+                fill='currentColor'
+                className={cn(props.isError ? 'text-error' : 'text-ios-green')}
             />
             <path
                 d='M896.41455,623.4646H669.54305a6.84142,6.84142,0,0,1-6.83348-6.83348v-76.535a6.84142,6.84142,0,0,1,6.83348-6.83348h226.8715a6.84131,6.84131,0,0,1,6.83348,6.83348v76.535A6.84131,6.84131,0,0,1,896.41455,623.4646Z'
@@ -232,21 +237,24 @@ export const illustrations = {
                 cy='378.3632'
                 r='4.10009'
                 // fill='#6c63ff'
-                fill='#f86158'
+                fill='currentColor'
+                className={cn(props.isError ? 'text-error' : 'text-ios-red')}
             />
             <circle
                 cx='664.31359'
                 cy='378.3632'
                 r='4.10009'
                 // fill='#6c63ff'
-                fill='#fbbf2d'
+                fill='currentColor'
+                className={cn(props.isError ? 'text-error' : 'text-ios-amber')}
             />
             <circle
                 cx='677.98055'
                 cy='378.3632'
                 r='4.10009'
                 // fill='#6c63ff'
-                fill='#2ccb44'
+                fill='currentColor'
+                className={cn(props.isError ? 'text-error' : 'text-ios-green')}
             />
             <path
                 d='M896.41455,720.5H669.54305a6.84142,6.84142,0,0,1-6.83348-6.83348v-76.535a6.84142,6.84142,0,0,1,6.83348-6.83348h226.8715a6.84131,6.84131,0,0,1,6.83348,6.83348v76.535A6.84131,6.84131,0,0,1,896.41455,720.5Z'
@@ -267,34 +275,40 @@ export const illustrations = {
                 cy='475.3986'
                 r='4.10009'
                 // fill='#6c63ff'
-                fill='#f86158'
+                fill='currentColor'
+                className={cn(props.isError ? 'text-error' : 'text-ios-red')}
             />
             <circle
                 cx='664.31359'
                 cy='475.3986'
                 r='4.10009'
                 // fill='#6c63ff'
-                fill='#fbbf2d'
+                fill='currentColor'
+                className={cn(props.isError ? 'text-error' : 'text-ios-amber')}
             />
             <circle
                 cx='677.98055'
                 cy='475.3986'
                 r='4.10009'
                 // fill='#6c63ff'
-                fill='#2ccb44'
+                fill='currentColor'
+                className={cn(props.isError ? 'text-error' : 'text-ios-green')}
             />
             <path
                 d='M624.16975,555.4751a51.65758,51.65758,0,0,1-12.80592-1.65653l-.82437-.22809-.76473-.38315c-27.64741-13.86188-50.972-32.17148-69.32613-54.42051A206.01576,206.01576,0,0,1,505.445,436.63119a239.23058,239.23058,0,0,1-13.52819-84.27411c.01166-.60191.02157-1.06666.02157-1.38685,0-13.93921,7.73735-26.16983,19.7117-31.15922,9.1646-3.81859,92.37477-37.99632,98.38691-40.46576,11.3225-5.6733,23.40157-.938,25.33457-.11,4.3358,1.77271,81.25852,33.235,97.88147,41.15044,17.13161,8.15789,21.7025,22.81326,21.7025,30.18661,0,33.38152-5.78132,64.57921-17.18348,92.72653a214.70835,214.70835,0,0,1-38.585,62.18361c-31.49806,35.44645-63.00448,48.01241-63.30855,48.12316A34.42708,34.42708,0,0,1,624.16975,555.4751ZM616.76046,537.122c2.73154.61241,9.02035,1.531,13.11931.03575,5.20719-1.899,31.57753-15.57359,56.21984-43.30474,34.04717-38.315,51.32274-86.48008,51.348-143.15748-.06081-1.14826-.87625-9.338-11.72177-14.50227-16.30062-7.76232-96.25525-40.45566-97.061-40.78518l-.2209-.09365c-1.67557-.70216-7.00808-2.18111-10.68387-.25491l-.736.34312c-.89121.366-89.21978,36.64445-98.64007,40.56951-6.58977,2.74572-8.93768,9.54785-8.93768,14.9981,0,.3983-.0103.97768-.02487,1.72647C508.66861,391.47757,517.64272,486.90515,616.76046,537.122Z'
                 transform='translate(-187 -179.5)'
                 // fill='#3f3d56'
-                fill='#21a033'
+                fill='currentColor'
+                className={cn(
+                    props.isError ? 'text-error/80' : 'text-success/80'
+                )}
             />
             <path
                 d='M613.69824,287.305s-89.13138,36.60753-98.68117,40.58661-14.32468,13.52887-14.32468,23.07866S493.53,485.132,613.69824,545.38167c0,0,10.90644,3.01772,19.181,0s113.32231-53.94993,113.32231-194.80934c0,0,0-14.32469-16.71214-22.28285S631.97694,287.305,631.97694,287.305,622.05431,282.928,613.69824,287.305Z'
                 transform='translate(-187 -179.5)'
                 // fill='#6c63ff'
                 fill='currentColor'
-                className='text-success'
+                className={cn(props.isError ? 'text-error' : 'text-success')}
             />
             <path
                 d='M623.248,315.95433V511.24254s89.9272-43.28737,89.13138-157.089Z'

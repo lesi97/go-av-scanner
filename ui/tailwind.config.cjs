@@ -24,6 +24,9 @@ module.exports = {
                 'warning-content': '#160200',
                 error: '#ff5f57',
                 'error-content': '#160004',
+                'ios-red': '#f86158',
+                'ios-amber': '#fbbf2d',
+                'ios-green': '#2ccb44',
             },
             spacing: {
                 '50%': '50%',

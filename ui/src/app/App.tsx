@@ -65,7 +65,9 @@ export default function App() {
                     </h1>
                     <DropBox
                         fileType='*/*'
-                        illustration={<illustrations.Secure />}
+                        illustration={
+                            <illustrations.Secure isError={mutation.isError} />
+                        }
                         callback={(file) => {
                             setFile(file);
                             mutation.mutate(file);
@@ -87,7 +89,7 @@ function ResultView({
 }) {
     if (result.status === 'clean') {
         return (
-            <p className='mt-4 text-green-600 font-medium text-break'>
+            <p className='mt-4 text-success font-medium whitespace-pre-line break-words text-pretty w-full'>
                 {fileName} is clean
             </p>
         );
@@ -95,11 +97,15 @@ function ResultView({
 
     if (result.status === 'infected') {
         return (
-            <p className='mt-4 text-red-600 font-medium text-break'>
+            <p className='mt-4 text-error font-medium whitespace-pre-line break-words text-pretty w-full'>
                 {fileName} is infected ({result.signature})
             </p>
         );
     }
 
-    return <p className='mt-4 text-red-600'>Error during scan</p>;
+    return (
+        <p className='mt-4 text-error whitespace-pre-line break-words text-pretty w-full'>
+            Error during scan
+        </p>
+    );
 }
