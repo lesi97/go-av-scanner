@@ -1,21 +1,19 @@
 package api
 
 import (
-	"context"
 	"errors"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/lesi97/go-av-scanner/internal/scanner"
 	"github.com/lesi97/go-av-scanner/internal/utils"
 )
 
 func (h *ApiHandler) HandleScan(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(r.Context(), 60*time.Second)
-	defer cancel()
+	// ctx, cancel := context.WithTimeout(r.Context(), 60*time.Second)
+	// defer cancel()
 
-	err := r.ParseMultipartForm(200 << 20)
+	err := r.ParseMultipartForm(100000 << 20) // 104.8576gb or 104,857,600,000 bytes
 	if err != nil {
 		utils.Error(w, http.StatusBadRequest, "invalid multipart form")
 		return
@@ -25,7 +23,8 @@ func (h *ApiHandler) HandleScan(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		defer func() { _ = file.Close() }()
 
-		message, err := h.apiStore.Scan(ctx, file)
+		// message, err := h.apiStore.Scan(ctx, file)
+		message, err := h.apiStore.Scan(r.Context(), file)
 		if err != nil {
 			var scanErr *scanner.ScanError
 			if errors.As(err, &scanErr) {
@@ -45,7 +44,8 @@ func (h *ApiHandler) HandleScan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	message, err := h.apiStore.Scan(ctx, strings.NewReader(content))
+	// message, err := h.apiStore.Scan(ctx, strings.NewReader(content))
+	message, err := h.apiStore.Scan(r.Context(), strings.NewReader(content))
 	if err != nil {
 		var scanErr *scanner.ScanError
 		if errors.As(err, &scanErr) {

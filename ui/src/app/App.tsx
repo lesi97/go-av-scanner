@@ -87,7 +87,7 @@ function ResultView({
 }) {
     if (result.status === 'clean') {
         return (
-            <p className='mt-4 text-green-600 font-medium'>
+            <p className='mt-4 text-green-600 font-medium text-break'>
                 {fileName} is clean
             </p>
         );
@@ -95,7 +95,7 @@ function ResultView({
 
     if (result.status === 'infected') {
         return (
-            <p className='mt-4 text-red-600 font-medium'>
+            <p className='mt-4 text-red-600 font-medium text-break'>
                 {fileName} is infected ({result.signature})
             </p>
         );
