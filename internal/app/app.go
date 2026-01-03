@@ -2,6 +2,7 @@ package app
 
 import (
 	"os"
+	"strconv"
 
 	"github.com/lesi97/go-av-scanner/internal/api"
 	"github.com/lesi97/go-av-scanner/internal/scanner/clamscan"
@@ -23,7 +24,11 @@ func NewApplication() (*Application, error) {
 	if envMaxUploadBytes == "" {
 		maxUploadBytes = 10 << 30  // 10.73741824gb or 10,737,418,240 bytes
 	} else {
-		maxUploadBytes = int64(maxUploadBytes)
+		i, err := strconv.ParseInt(envMaxUploadBytes, 10, 64)
+		if err != nil {
+			panic(err)
+		}
+		maxUploadBytes =  i
 	}
 
 	sc, err := clamscan.New(logger, "", maxUploadBytes)
