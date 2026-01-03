@@ -104,6 +104,17 @@ sudo apt-get install -y clamav sudo freshclam
 brew install clamav freshclam
 ```
 
+## Unraid
+
+This project is mainly for learning and running on my Unraid server
+To do this on Unraid, you will need to copy /unraid/my-go-av-scanner.xml into the below path on your server
+
+```
+/boot/config/plugins/dockerMan/templates-user
+```
+
+You can then visit the Docker tab, select Add Container and choose `go-av-scanner` from the list of templates
+
 ## Support
 
 If you find this project useful, you can support its development via GitHub Sponsors

@@ -2,6 +2,8 @@
 <Container version="2">
   <Name>go-av-scanner</Name>
   <Repository>go-av-scanner:latest</Repository>
+  <Repository>ghcr.io/lesi97/go-av-scanner:latest</Repository>
+  
   <Network>bridge</Network>
   <MyID>go-av-scanner</MyID>
   <Privileged>false</Privileged>
@@ -9,6 +11,7 @@
   <Category>Web</Category>
   <WebUI>http://[IP]:[PORT:8080]</WebUI>
   <Shell>sh</Shell>
+  <Icon>https://raw.githubusercontent.com/lesi97/go-av-scanner/main/ui/public/lesi.webp</Icon>
 
 
   <Config 
@@ -20,9 +23,7 @@
     Type="Variable" 
     Display="always" 
     Required="false" 
-    Mask="false">
-      true
-  </Config>
+    Mask="false">true</Config>
 
   <Config 
     Name="GO_ENV" 
@@ -33,9 +34,7 @@
     Type="Variable" 
     Display="always" 
     Required="false" 
-    Mask="false">
-      production
-  </Config>
+    Mask="false">production</Config>
 
   <Config 
     Name="MAX_UPLOAD_BYTES" 
@@ -46,9 +45,7 @@
     Type="Variable" 
     Display="always" 
     Required="false" 
-    Mask="false">
-      4294967296
-  </Config>
+    Mask="false">4294967296</Config>
   
   <Config 
     Name="WebUI Port" 
@@ -59,9 +56,7 @@
     Type="Port" 
     Display="always"
     Required="true" 
-    Mask="false">
-      8080
-  </Config>
+    Mask="false">7351</Config>
   
   <Config 
     Name="clamdb" 
@@ -72,7 +67,5 @@
     Type="Path" 
     Display="always" 
     Required="true" 
-    Mask="false">
-      /mnt/user/appdata/go-av-scanner/clamdb
-  </Config>
+    Mask="false">/mnt/user/appdata/go-av-scanner/clamdb</Config>
 </Container>

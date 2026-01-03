@@ -7,9 +7,7 @@
         "ui": "cd ./ui && npm run dev",
         "docker:build": "docker build -t go-av-scanner .",
         "docker:run": "docker run --rm -p 8080:8080 -v clamdb:/var/lib/clamav go-av-scanner",
-        "docker:k6": "docker run --rm -i -v %cd%:/work -w /work grafana/k6 run ./loadtest/k6.js > ./loadtest/loadtest.log",
-        "docker:buildImage": "docker buildx build --platform linux/amd64 -t go-av-scanner:latest --load . && docker save -o go-av-scanner.tar go-av-scanner:latest",
-        "docker:buildAndTransfer": "npm run docker:buildImage && scp go-av-scanner.tar root@192.168.0.209:/mnt/user/appdata/go-av-scanner/"
+        "docker:k6": "docker run --rm -i -v %cd%:/work -w /work grafana/k6 run ./loadtest/k6.js > ./loadtest/loadtest.log"
     },
     "repository": {
         "type": "git",
