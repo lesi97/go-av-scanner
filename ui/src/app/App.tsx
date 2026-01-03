@@ -32,7 +32,7 @@ export default function App() {
             setMessage(
                 <>
                     <ResultView
-                        result={mutation.error}
+                        result={String(mutation.error)}
                         fileName={file?.name || 'Your file'}
                     />
                 </>
