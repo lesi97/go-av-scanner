@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<Container>
+<Container version="2">
   <Name>go-av-scanner</Name>
   <Repository>go-av-scanner:latest</Repository>
   <Network>bridge</Network>
@@ -8,37 +8,71 @@
   <Overview>Go AV scanner</Overview>
   <Category>Web</Category>
   <WebUI>http://[IP]:[PORT:8080]</WebUI>
+  <Shell>sh</Shell>
 
-  <Environment>
-    <Variable>
-      <Name>GO_ENV</Name>
-      <Value>production</Value>
-      <Mode>rw</Mode>
-    </Variable>
-    <Variable>
-      <Name>ENABLE_UI</Name>
-      <Value>true</Value>
-      <Mode>rw</Mode>
-    </Variable>
-    <Variable>
-      <Name>MAX_UPLOAD_BYTES</Name>
-      <Value>4294967296</Value>
-      <Mode>rw</Mode>
-  </Environment>
 
-  <Data>
-    <Volume>
-      <HostDir>/mnt/user/appdata/go-av-scanner/clamdb</HostDir>
-      <ContainerDir>/var/lib/clamav</ContainerDir>
-      <Mode>rw</Mode>
-    </Volume>
-  </Data>
+  <Config 
+    Name="ENABLE_UI" 
+    Target="ENABLE_UI" 
+    Default="true" 
+    Mode="rw" 
+    Description="" 
+    Type="Variable" 
+    Display="always" 
+    Required="false" 
+    Mask="false">
+      true
+  </Config>
 
-  <Networking>
-    <Port>
-      <HostPort>7351</HostPort>
-      <ContainerPort>8080</ContainerPort>
-      <Protocol>tcp</Protocol>
-    </Port>
-  </Networking>
+  <Config 
+    Name="GO_ENV" 
+    Target="GO_ENV" 
+    Default="production" 
+    Mode="rw" 
+    Description="" 
+    Type="Variable" 
+    Display="always" 
+    Required="false" 
+    Mask="false">
+      production
+  </Config>
+
+  <Config 
+    Name="MAX_UPLOAD_BYTES" 
+    Target="MAX_UPLOAD_BYTES" 
+    Default="4294967296" 
+    Mode="rw" 
+    Description="" 
+    Type="Variable" 
+    Display="always" 
+    Required="false" 
+    Mask="false">
+      4294967296
+  </Config>
+  
+  <Config 
+    Name="WebUI Port" 
+    Target="8080" 
+    Default="8080" 
+    Mode="tcp" 
+    Description="HTTP port" 
+    Type="Port" 
+    Display="always"
+    Required="true" 
+    Mask="false">
+      8080
+  </Config>
+  
+  <Config 
+    Name="clamdb" 
+    Target="/var/lib/clamav" 
+    Default="/mnt/user/appdata/go-av-scanner/clamdb" 
+    Mode="rw" 
+    Description="ClamAV database" 
+    Type="Path" 
+    Display="always" 
+    Required="true" 
+    Mask="false">
+      /mnt/user/appdata/go-av-scanner/clamdb
+  </Config>
 </Container>
