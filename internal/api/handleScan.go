@@ -1,72 +1,114 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"strings"
+	"time"
 
-	"github.com/lesi97/go-av-scanner/internal/scanner"
 	"github.com/lesi97/go-av-scanner/internal/utils"
 )
 
 func (h *ApiHandler) HandleScan(w http.ResponseWriter, r *http.Request) {
-	// ctx, cancel := context.WithTimeout(r.Context(), 60*time.Second)
-	// defer cancel()
+	ctx := r.Context()
 
 	r.Body = http.MaxBytesReader(w, r.Body, h.apiStore.MaxUploadBytes())
-	
-	err := r.ParseMultipartForm(64 << 24) // 1073741824 bytes
-	if err != nil {
-		var maxErr *http.MaxBytesError
-		if errors.As(err, &maxErr) {
-			maxFileSize := utils.FormatBytes(h.apiStore.MaxUploadBytes())
-			newErr := fmt.Errorf("file size too large, max filesize is: %v", maxFileSize)
-			utils.Error(w, http.StatusRequestEntityTooLarge, newErr)
-			return
-		}
 
-		utils.Error(w, http.StatusBadRequest, "invalid multipart form")
+	mr, err := r.MultipartReader()
+	if err != nil {
+		h.logger.Error(err)
+		h.writeMultipartErr(w, err)
 		return
 	}
 
-	file, _, err := r.FormFile("file")
-	if err == nil {
-		defer func() { _ = file.Close() }()
+	var content string
 
-		// message, err := h.apiStore.Scan(ctx, file)
-		message, err := h.apiStore.Scan(r.Context(), file)
-		if err != nil {
-			var scanErr *scanner.ScanError
-			if errors.As(err, &scanErr) {
-				utils.Error(w, http.StatusUnprocessableEntity, scanErr.Result)
+	for {
+		part, partErr := mr.NextPart()
+		if partErr == io.EOF {
+			break
+		}
+		if partErr != nil {
+			h.writeMultipartErr(w, partErr)
+			return
+		}
+		fmt.Println()
+		switch part.FormName() {
+		case "file":
+			if h.handleFilePart(ctx, w, part) {
 				return
 			}
-			utils.Error(w, http.StatusInternalServerError, err)
-			return
+
+		case "content":
+			if content != "" {
+				_ = part.Close()
+				continue
+			}
+
+			value, ok := h.handleContentPart(w, part)
+			if !ok {
+				return
+			}
+			content = value
+
+		default:
+			_ = part.Close()
 		}
-		utils.Success(w, http.StatusOK, message)
-		return
 	}
 
-	content := r.FormValue("content")
 	if content == "" {
 		utils.Error(w, http.StatusBadRequest, "missing file field")
 		return
 	}
 
-	// message, err := h.apiStore.Scan(ctx, strings.NewReader(content))
-	message, err := h.apiStore.Scan(r.Context(), strings.NewReader(content))
-	if err != nil {
-		var scanErr *scanner.ScanError
-		if errors.As(err, &scanErr) {
-			utils.Error(w, http.StatusUnprocessableEntity, scanErr.Result)
+	h.scanAndWrite(ctx, w, strings.NewReader(content))
+}
+
+func (h *ApiHandler) handleFilePart(ctx context.Context, w http.ResponseWriter, part *multipart.Part) bool {
+	filename := part.FileName()
+	logged := utils.NewLoggingReader(io.NopCloser(part), h.logger, filename, time.Second)
+
+	h.scanAndWrite(ctx, w, logged)
+
+	_ = logged.Close()
+	return true
+}
+
+func (h *ApiHandler) handleContentPart(w http.ResponseWriter, part *multipart.Part) (string, bool) {
+	b, readErr := io.ReadAll(io.LimitReader(part, 1<<20))
+	_ = part.Close()
+	if readErr != nil {
+		utils.Error(w, http.StatusBadRequest, "invalid multipart form")
+		return "", false
+	}
+	return string(b), true
+}
+
+func (h *ApiHandler) scanAndWrite(ctx context.Context, w http.ResponseWriter, r io.Reader) {
+	message, scanErr := h.apiStore.Scan(ctx, r)
+	if scanErr != nil {
+		switch message {
+		case nil:
+			utils.Error(w, http.StatusInternalServerError, scanErr)
+			return
+		default:
+			utils.Error(w, http.StatusInternalServerError, message.Error)
 			return
 		}
-		utils.Error(w, http.StatusInternalServerError, err)
+	}
+	utils.Success(w, http.StatusOK, message)
+}
+
+func (h *ApiHandler) writeMultipartErr(w http.ResponseWriter, err error) {
+	var maxErr *http.MaxBytesError
+	if errors.As(err, &maxErr) {
+		maxFileSize := utils.FormatBytes(h.apiStore.MaxUploadBytes())
+		utils.Error(w, http.StatusRequestEntityTooLarge, fmt.Sprintf("file size too large, max file size is: %s", maxFileSize))
 		return
 	}
-
-	utils.Success(w, http.StatusOK, message)
-
+	utils.Error(w, http.StatusBadRequest, "invalid multipart form")
 }

@@ -1,15 +1,9 @@
 export type ScanResult = {
-    status: 'clean';
+    status: 'clean' | 'infected' | 'error';
     signature?: string;
     engine: string;
     duration_ms: number;
-};
-
-export type ScanError = {
-    status: 'infected' | 'error';
-    signature?: string;
-    engine: string;
-    duration_ms: number;
+    error?: string;
 };
 
 export async function scanFile(file: File): Promise<ScanResult> {

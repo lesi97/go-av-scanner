@@ -1,14 +1,13 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 	"time"
 
 	"github.com/lesi97/go-av-scanner/internal/utils"
 )
 
-func Run(logger *log.Logger, handlerFunc http.HandlerFunc) http.HandlerFunc {
+func Run(logger *utils.Logger, handlerFunc http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		path := r.URL.Path

@@ -2,17 +2,22 @@ package clamscan_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/lesi97/go-av-scanner/internal/scanner"
 	"github.com/lesi97/go-av-scanner/internal/scanner/clamscan"
+	"github.com/lesi97/go-av-scanner/internal/utils"
 )
 
 func TestClamScan_EicarDetected(t *testing.T) {
+	logger := utils.NewColourLogger("brightMagenta")
 	bin := os.Getenv("CLAMSCAN_PATH")
 	if bin == "" {
 		bin = "clamdscan"
@@ -22,12 +27,17 @@ func TestClamScan_EicarDetected(t *testing.T) {
 		t.Skip("clamdscan not found, skipping integration test")
 	}
 
-	sc, _ := clamscan.New(bin, 64 << 20)
+	sc, _ := clamscan.New(logger, bin, 64 << 20)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	tmp, err := os.CreateTemp("", "eicar-*")
+	tmpDir, err := getScanTmpDir()
+	if err != nil {
+		t.Fatalf("temp: %v", err)
+	} 
+
+	tmp, err := os.CreateTemp(tmpDir, "eicar-*")
 	if err != nil {
 		t.Fatalf("temp: %v", err)
 	}
@@ -47,4 +57,27 @@ func TestClamScan_EicarDetected(t *testing.T) {
 	if !strings.Contains(res.Signature, "Eicar") {
 		t.Fatalf("expected eicar signature got %v", res.Signature)
 	}
+}
+
+func getScanTmpDir() (string, error) {
+	if v := strings.TrimSpace(os.Getenv("AV_SCAN_TMPDIR")); v != "" {
+		if err := os.MkdirAll(v, 0o700); err != nil {
+			return "", fmt.Errorf("failed to create AV_SCAN_TMPDIR: %w", err)
+		}
+		return v, nil
+	}
+
+	if runtime.GOOS == "windows" {
+		base := `C:\av-test-tmp`
+		if err := os.MkdirAll(base, 0o700); err != nil {
+			return "", fmt.Errorf("failed to create windows tmp dir: %w", err)
+		}
+		return base, nil
+	}
+
+	base := filepath.Join(os.TempDir(), "av-scan")
+	if err := os.MkdirAll(base, 0o700); err != nil {
+		return "", fmt.Errorf("failed to create tmp dir: %w", err)
+	}
+	return base, nil
 }

@@ -29,6 +29,7 @@ COPY --from=ui-build /ui/dist /app/ui/dist
 
 ENV ENABLE_UI=true
 ENV GO_ENV=production
+ENV MAX_UPLOAD_BYTES=4294967296
 
 EXPOSE 8080
 ENTRYPOINT ["/entrypoint.sh"]

@@ -9,7 +9,7 @@ A startup function that should be called on the main thread
 
 that provides a developer with useful information
 */
-func Startup(port string) {
+func Startup(l *Logger,port string) {
 	env := os.Getenv("GO_ENV")
 	const protocol = "http://"
 	if env == "" {
@@ -18,14 +18,14 @@ func Startup(port string) {
 	name, version := readModuleInfo()
 	ip := getLocalIp()
 
-	PrintColour("brightWhite", "\n  > %s %s\n", name, version) 		// Package name
-	PrintColour("brightBlack", "\tEnvironment: %s", env)			// Current environment
-	PrintColour("brightMagenta", "\n\t- Local:")					// Localhost address label
-	PrintColour("cyan", "\t  %v%v%v", protocol, "localhost", port)	// Localhost address value
+	l.PrintColour(false, "brightWhite", "\n  > %s %s\n", name, version) 	// Package name
+	l.PrintColour(false, "brightBlack", "\tEnvironment: %s", env)			// Current environment
+	l.PrintColour(false, "brightMagenta", "\n\t- Local:")					// Localhost address label
+	l.PrintColour(false, "cyan", "\t  %v%v%v", protocol, "localhost", port)	// Localhost address value
 	if ip != "" {
-		PrintColour("brightMagenta", "\n\t- Network:")				// Network address label
-		PrintColour("cyan", "\t  %v%v%v\n", protocol,ip, port)		// Network address value
+		l.PrintColour(false, "brightMagenta", "\n\t- Network:")				// Network address label
+		l.PrintColour(false, "cyan", "\t  %v%v%v\n", protocol,ip, port)		// Network address value
 	}
 
-	PrintColour("green", "\n  ✓ Server Ready\n\n")					// Server ready
+	l.PrintColour(false, "green", "\n  ✓ Server Ready\n\n")					// Server ready
 }

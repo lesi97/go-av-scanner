@@ -1,12 +1,11 @@
 package utils
 
 import (
-	"fmt"
 	"time"
 )
 
 
-func LogExecutionTime(name string, start time.Time) {
+func (l *Logger) LogExecutionTime(name string, start time.Time) {
 	pathColour := Colours["brightBlack"]
 	timeColour := Colours["green"]
 	duration := time.Since(start)
@@ -15,5 +14,5 @@ func LogExecutionTime(name string, start time.Time) {
 		timeColour = Colours["brightRed"] + Colours["bold"]
 	}
 
-	fmt.Printf("%s%s %stook %s%s\n", pathColour, name, timeColour, duration, Colours["reset"])
+	l.Printf("%s%s %stook %s%s\n", pathColour, name, timeColour, duration, Colours["reset"])
 }

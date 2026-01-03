@@ -20,6 +20,10 @@
       <Value>true</Value>
       <Mode>rw</Mode>
     </Variable>
+    <Variable>
+      <Name>MAX_UPLOAD_BYTES</Name>
+      <Value>4294967296</Value>
+      <Mode>rw</Mode>
   </Environment>
 
   <Data>

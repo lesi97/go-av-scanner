@@ -33,7 +33,7 @@ func main() {
 		WriteTimeout: 0,
 	}
 
-	utils.Startup(fmt.Sprintf(":%d", port))
+	utils.Startup(app.Logger, fmt.Sprintf(":%d", port))
 
 	err = server.ListenAndServe() 
 	if err != nil {

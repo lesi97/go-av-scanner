@@ -21,11 +21,12 @@ func (f fakeScanner) ScanFile(ctx context.Context, path string) (scanner.Result,
 	return f.result, f.err
 }
 
-const MaxFileBytes = 64 << 20
+const MaxUploadBytes int64 = 64 << 20
 
 func TestScan_ReturnsErrorOnNilReader(t *testing.T) {
 	logger := utils.NewColourLogger("brightMagenta")
-	s := store.NewApiStore(logger, fakeScanner{}, MaxFileBytes)
+	s := store.NewApiStore(logger, fakeScanner{}, MaxUploadBytes)
+
 	_, err := s.Scan(context.Background(), nil)
 	if err == nil {
 		t.Fatalf("expected error, got nil")
@@ -37,7 +38,7 @@ func TestScan_ReturnsCleanResult(t *testing.T) {
 		result: scanner.Result{Status: scanner.StatusClean, Engine: "fake"},
 	}
 	logger := utils.NewColourLogger("brightMagenta")
-	s := store.NewApiStore(logger, fs, MaxFileBytes)
+	s := store.NewApiStore(logger, fs, MaxUploadBytes)
 
 	res, err := s.Scan(context.Background(), bytes.NewReader([]byte("hello")))
 	if err != nil {
@@ -51,25 +52,28 @@ func TestScan_ReturnsCleanResult(t *testing.T) {
 	}
 }
 
-func TestScan_ReturnsInfectedAsScanError(t *testing.T) {
+func TestScan_ReturnsInfectedResult(t *testing.T) {
 	fs := fakeScanner{
 		result: scanner.Result{Status: scanner.StatusInfected, Signature: "Eicar-Test-Signature", Engine: "fake"},
 	}
 	logger := utils.NewColourLogger("brightMagenta")
-	s := store.NewApiStore(logger, fs, MaxFileBytes)
+	s := store.NewApiStore(logger, fs, MaxUploadBytes)
 
 	res, err := s.Scan(context.Background(), bytes.NewReader([]byte("eicar")))
+	if err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
 	if res == nil {
 		t.Fatalf("expected result, got nil")
 	}
-	var scanErr *scanner.ScanError
-	if !errors.As(err, &scanErr) {
-		t.Fatalf("expected ScanError, got %v", err)
+	if res.Status != scanner.StatusInfected {
+		t.Fatalf("expected infected, got %v", res.Status)
 	}
-	if scanErr.Result.Signature != "Eicar-Test-Signature" {
-		t.Fatalf("expected signature, got %v", scanErr.Result.Signature)
+	if res.Signature != "Eicar-Test-Signature" {
+		t.Fatalf("expected signature, got %v", res.Signature)
 	}
 }
+
 
 func TestScan_PropagatesScannerError(t *testing.T) {
 	fs := fakeScanner{
@@ -77,7 +81,7 @@ func TestScan_PropagatesScannerError(t *testing.T) {
 		err:    io.EOF,
 	}
 	logger := utils.NewColourLogger("brightMagenta")
-	s := store.NewApiStore(logger, fs, MaxFileBytes)
+	s := store.NewApiStore(logger, fs, MaxUploadBytes)
 
 	res, err := s.Scan(context.Background(), bytes.NewReader([]byte("hello")))
 	if res == nil {
@@ -85,5 +89,14 @@ func TestScan_PropagatesScannerError(t *testing.T) {
 	}
 	if !errors.Is(err, io.EOF) {
 		t.Fatalf("expected EOF, got %v", err)
+	}
+}
+
+func TestMaxUploadBytes_ReturnsConfiguredValue(t *testing.T) {
+	logger := utils.NewColourLogger("brightMagenta")
+	s := store.NewApiStore(logger, fakeScanner{}, MaxUploadBytes)
+
+	if s.MaxUploadBytes() != MaxUploadBytes {
+		t.Fatalf("expected %d, got %d", MaxUploadBytes, s.MaxUploadBytes())
 	}
 }

@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useMutation } from '@tanstack/react-query';
-import { scanFile, type ScanResult, type ScanError } from '../server/api';
+import { scanFile, type ScanResult } from '../server/api';
 import DropBox from '../components/dropbox';
 import { illustrations } from '../components/illustrations';
 import { useEffect, useState, type ReactNode } from 'react';
@@ -10,7 +10,7 @@ import { parseMessage } from '../utils/parseMessage';
 export default function App() {
     const [file, setFile] = useState<File | null>(null);
     const [message, setMessage] = useState<ReactNode>(<></>);
-    const mutation = useMutation<ScanResult, ScanError, File>({
+    const mutation = useMutation<ScanResult, Error, File>({
         mutationFn: scanFile,
     });
 
@@ -41,6 +41,7 @@ export default function App() {
         }
 
         if (mutation.data) {
+            console.log(mutation);
             setMessage(
                 <ResultView
                     result={mutation.data}
@@ -48,6 +49,7 @@ export default function App() {
                 />
             );
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         file?.name,
         mutation.isPending,
@@ -66,7 +68,12 @@ export default function App() {
                     <DropBox
                         fileType='*/*'
                         illustration={
-                            <illustrations.Secure isError={mutation.isError} />
+                            <illustrations.Secure
+                                isError={
+                                    mutation.data?.status.toLowerCase() ===
+                                    'infected'
+                                }
+                            />
                         }
                         callback={(file) => {
                             setFile(file);
@@ -84,9 +91,17 @@ function ResultView({
     result,
     fileName,
 }: {
-    result: ScanResult | ScanError;
+    result: ScanResult | string;
     fileName: string;
 }) {
+    if (typeof result === 'string') {
+        return (
+            <p className='mt-4 text-error whitespace-pre-line break-words text-pretty w-full'>
+                {result ? `ERROR: ${result}` : 'Error during scan'}
+            </p>
+        );
+    }
+
     if (result.status === 'clean') {
         return (
             <p className='mt-4 text-success font-medium whitespace-pre-line break-words text-pretty w-full'>
@@ -102,10 +117,4 @@ function ResultView({
             </p>
         );
     }
-
-    return (
-        <p className='mt-4 text-error whitespace-pre-line break-words text-pretty w-full'>
-            Error during scan
-        </p>
-    );
 }

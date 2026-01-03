@@ -92,19 +92,17 @@ func init() {
  | Invert          | invert          |
  | Hidden          | hidden          |
 */
-func PrintColour(colour string, format string, args ...interface{}) {
-	code, ok := Colours[colour]
-	if !ok {
-		code = Colours["reset"]
-	}
-	fmt.Printf("%s%s%s", code, fmt.Sprintf(format, args...), Colours["reset"])
+
+type Logger struct {
+	*log.Logger
 }
 
-func NewColourLogger(colour string) *log.Logger {
-	return log.New(&ColourWriter{
+func NewColourLogger(colour string) *Logger {
+	return &Logger{
+		log.New(&ColourWriter{
 		colour: colour,
 		writer: os.Stdout,
-	}, "", log.Ldate|log.Ltime)
+	}, "", log.Ldate|log.Ltime)}
 }
 
 func (cw *ColourWriter) Write(p []byte) (n int, err error) {
@@ -122,7 +120,44 @@ func (cw *ColourWriter) Write(p []byte) (n int, err error) {
 	colourTimestamp := Colours[cw.colour]
 	reset := Colours["reset"]
 
-	coloured := fmt.Sprintf("%s%s%s: %s", colourTimestamp, timestamp, reset, message)
+	coloured := fmt.Sprintf("%s%s | %s%s", colourTimestamp, timestamp, reset, message)
 
 	return cw.writer.Write([]byte(coloured))
+}
+
+func (l *Logger) PrintColourWithTimestamp(colour string, format string, args ...interface{}) {
+	code, ok := Colours[colour]
+	if !ok {
+		code = Colours["reset"]
+	}
+	l.Printf("%s%s%s", code, fmt.Sprintf(format, args...), Colours["reset"])
+}
+
+func (l *Logger) PrintColour(includeTimestamp bool, colour string, format string, args ...interface{}) {
+	code, ok := Colours[colour]
+	if !ok {
+		code = Colours["reset"]
+	}
+
+	if includeTimestamp {
+		l.Printf("%s%s%s", code, fmt.Sprintf(format, args...), Colours["reset"])
+	} else {
+		fmt.Printf("%s%s%s", code, fmt.Sprintf(format, args...), Colours["reset"])
+	}
+}
+
+func (l *Logger) Errorf(format string, args ...any) {
+	red := Colours["red"]
+	reset := Colours["reset"]
+
+	message := fmt.Sprintf("%vERROR: %v%v", red, format, reset)
+	l.Printf(message, args...)
+}
+
+func (l *Logger) Error(format interface{}) {
+	red := Colours["red"]
+	reset := Colours["reset"]
+
+	message := fmt.Sprintf("%vERROR: %v%v", red, format, reset)
+	l.Print(message)
 }

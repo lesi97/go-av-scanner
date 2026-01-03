@@ -8,7 +8,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/lesi97/go-av-scanner/internal/api"
@@ -17,8 +16,8 @@ import (
 )
 
 type fakeStore struct {
-	res *scanner.Result
-	err error
+	res            *scanner.Result
+	err            error
 	maxUploadBytes int64
 }
 
@@ -37,21 +36,19 @@ func (f fakeStore) MaxUploadBytes() int64 {
 	return f.maxUploadBytes
 }
 
-
 func TestHandleScan_ContentField(t *testing.T) {
 	logger := utils.NewColourLogger("brightMagenta")
 	h := api.NewApiHandler(logger, fakeStore{
 		res: &scanner.Result{Status: scanner.StatusClean, Engine: "fake"},
 	})
 
-	req := httptest.NewRequest(http.MethodPost, "/scan", strings.NewReader(""))
-	req.Header.Set("Content-Type", "multipart/form-data; boundary=BOUNDARY")
+	body := &bytes.Buffer{}
+	mw := multipart.NewWriter(body)
+	_ = mw.WriteField("content", "hello")
+	_ = mw.Close()
 
-	body := "--BOUNDARY\r\n" +
-		"Content-Disposition: form-data; name=\"content\"\r\n\r\n" +
-		"hello\r\n" +
-		"--BOUNDARY--\r\n"
-	req.Body = io.NopCloser(strings.NewReader(body))
+	req := httptest.NewRequest(http.MethodPost, "/api/scan", body)
+	req.Header.Set("Content-Type", mw.FormDataContentType())
 
 	w := httptest.NewRecorder()
 	h.HandleScan(w, req)
@@ -61,7 +58,56 @@ func TestHandleScan_ContentField(t *testing.T) {
 	}
 }
 
-func TestHandleScan_InfectedMapsTo422(t *testing.T) {
+func TestHandleScan_FileField(t *testing.T) {
+	logger := utils.NewColourLogger("brightMagenta")
+	h := api.NewApiHandler(logger, fakeStore{
+		res: &scanner.Result{Status: scanner.StatusClean, Engine: "fake"},
+	})
+
+	body := &bytes.Buffer{}
+	mw := multipart.NewWriter(body)
+
+	fw, err := mw.CreateFormFile("file", "test.txt")
+	if err != nil {
+		t.Fatalf("CreateFormFile error: %v", err)
+	}
+
+	_, _ = fw.Write([]byte("hello"))
+	_ = mw.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/api/scan", body)
+	req.Header.Set("Content-Type", mw.FormDataContentType())
+
+	w := httptest.NewRecorder()
+	h.HandleScan(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %v body=%v", w.Code, w.Body.String())
+	}
+}
+
+func TestHandleScan_MissingFields(t *testing.T) {
+	logger := utils.NewColourLogger("brightMagenta")
+	h := api.NewApiHandler(logger, fakeStore{
+		res: &scanner.Result{Status: scanner.StatusClean, Engine: "fake"},
+	})
+
+	body := &bytes.Buffer{}
+	mw := multipart.NewWriter(body)
+	_ = mw.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/api/scan", body)
+	req.Header.Set("Content-Type", mw.FormDataContentType())
+
+	w := httptest.NewRecorder()
+	h.HandleScan(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %v body=%v", w.Code, w.Body.String())
+	}
+}
+
+func TestHandleScan_InfectedWithScanErrorMapsTo500(t *testing.T) {
 	logger := utils.NewColourLogger("brightMagenta")
 	h := api.NewApiHandler(logger, fakeStore{
 		res: &scanner.Result{Status: scanner.StatusInfected, Signature: "Eicar-Test-Signature", Engine: "fake"},
@@ -73,14 +119,14 @@ func TestHandleScan_InfectedMapsTo422(t *testing.T) {
 	_ = mw.WriteField("content", "eicar")
 	_ = mw.Close()
 
-	req := httptest.NewRequest(http.MethodPost, "/scan", body)
+	req := httptest.NewRequest(http.MethodPost, "/api/scan", body)
 	req.Header.Set("Content-Type", mw.FormDataContentType())
 
 	w := httptest.NewRecorder()
 	h.HandleScan(w, req)
 
-	if w.Code != http.StatusUnprocessableEntity {
-		t.Fatalf("expected 422, got %v body=%v", w.Code, w.Body.String())
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("expected 500, got %v body=%v", w.Code, w.Body.String())
 	}
 }
 
@@ -96,7 +142,7 @@ func TestHandleScan_InternalErrorMapsTo500(t *testing.T) {
 	_ = mw.WriteField("content", "hello")
 	_ = mw.Close()
 
-	req := httptest.NewRequest(http.MethodPost, "/scan", body)
+	req := httptest.NewRequest(http.MethodPost, "/api/scan", body)
 	req.Header.Set("Content-Type", mw.FormDataContentType())
 
 	w := httptest.NewRecorder()
