@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <Container version="2">
   <Name>go-av-scanner</Name>
-  <Repository>go-av-scanner:latest</Repository>
   <Repository>ghcr.io/lesi97/go-av-scanner:latest</Repository>
   
   <Network>bridge</Network>

@@ -247,9 +247,9 @@ func parseSignature(output string, suffix string) string {
 		return ""
 	}
 
-	right := strings.TrimSpace(parts[len(parts)-1])
+	right := strings.TrimSpace(strings.Split(parts[1], "\n")[0])
 
-	if runtime.GOOS == "windows" && len(parts) >= 3 {
+	if runtime.GOOS == "windows" {
 		right = strings.TrimSpace(strings.Split(parts[2], "\n")[0])
 	}
 
